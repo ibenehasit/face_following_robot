@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import os
+import os #needed for file access
 
 try:
     face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
@@ -35,7 +35,7 @@ while True:
     )
 
     for (x, y, w, h) in faces:
-        cv2.rectangle(d_image, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        cv2.rectangle(d_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
     cv2.imshow('Face Detector - Press Q to Quit', d_image)
     
