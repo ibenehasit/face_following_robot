@@ -1,20 +1,50 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 
+try:
+    face_cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+    face_cascade = cv2.CascadeClassifier(face_cascade_path)
+except Exception as e:
+    print(f"Error loading cascade classifier from standard path: {e}")
+    print("Attempting to load from local directory (needs manual download)...")
+    face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
-#loading in pre-trained haar cascade classifer for faces and eyes
-face_cascade = cv2.CascadeClassifier("/content/haarcascade_frontalface_default.xml")
-eye_cascade = cv2.CascadeClassifier('/content/haarcascade_eye.xml')
+cap = cv2.VideoCapture(0)
 
+if not cap.isOpened():
+    print("FATAL ERROR: Could not open video stream or camera (VideoCapture(0) failed).")
+    print("Check if another program is using the camera or if the camera is connected.")
+    exit()
 
-#detecting face module
-def adjusted_detect_face(img):
-    face_img = img.copy()
-    face_rect = face_cascade.detectMultiScale(face_img, scaleFactor=1.2, minNeighbors=5)
+print("Camera initialized successfully. Press 'Q' to quit the window.")
 
-    for (x, y, w, h) in face_rect:
-        cv2.rectangle(face_img, (x, y), (x + w, y + h), (255, 255, 255), 10)
-        
-    return face_img
+while True:
+    c_rec, d_image = cap.read()
+    
+    if not c_rec:
+        print("Warning: Could not read frame from video stream. Exiting loop.")
+        break
+    
+    gray_image = cv2.cvtColor(d_image, cv2.COLOR_BGR2GRAY)
+    
+    faces = face_cascade.detectMultiScale(
+        gray_image, 
+        scaleFactor=1.3, 
+        minNeighbors=5
+    )
 
+    for (x, y, w, h) in faces:
+        cv2.rectangle(d_image, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+    cv2.imshow('Face Detector - Press Q to Quit', d_image)
+    
+    key = cv2.waitKey(1) & 0xff 
+    
+    if key == ord('q') or key == ord('Q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+
+print("Program closed successfully.")
